@@ -1,0 +1,17 @@
+Existem dois modulos utilizaveis do playwright:
+1 - playwright.async_api
+2 - playwright.sync_api
+
+Diferencas -> O playwright_asyn_api funciona de forma assicrona (não necessita que uma acao termine para outra continuar)
+           -> o playwright_sync_api funciona de forma síncrona (uma ação somente é realizada após a outra) 
+
+playwright_sync_api:
+
+Importação -> from playwright_sync_api Importação sync_playwright
+
+Forma de inicializar:
+with sync_playwright() as p: -- isso chama a funcao sync_playwright e coloca o retorno na variavel p, dessa forma o programa realiza duas operações
+o with inicializar e roda o metodo __enter__ que está na classe PlaywrightContextManage que por sua vez, está sendo inicilizada no chamado da funcao
+e por sua vez o metodo __enter__ retorna outras classes (isso no programa atual, o correto em geral é dizer que o __enter__ retorna um objeto)----
+--somente para contextualizar, o with por padrao sempre procura em uma classe um metodo chamado __enter__ e __exit__, isso serve para o with saber oq fazer ao programa rodar e ao fim
+--o with usa o retorno do metodo __enter__ e ao fim do bloco internamente usa o retorno do metodo __exit__
