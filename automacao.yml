@@ -1,0 +1,57 @@
+name: Keep Render awake until midnight
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/keep-render-awake-until-midnight.yml
+  workflow_dispatch:
+
+jobs:
+  keep-awake:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+
+    steps:
+      - name: Install requests
+        run: python -m pip install --disable-pip-version-check requests
+
+      - name: Ping Render every 5 minutes until midnight in Brasilia
+        shell: bash
+        run: |
+          python - <<'PY'
+          import time
+          from datetime import datetime
+          from zoneinfo import ZoneInfo
+
+          import requests
+
+          URL = "https://assinatura-contabil-melhorada.onrender.com"
+          TIMEZONE = ZoneInfo("America/Sao_Paulo")
+          END_TIME = datetime(2026, 7, 31, 0, 0, 0, tzinfo=TIMEZONE)
+
+          print(f"Keep-alive iniciado. Encerramento: {END_TIME.isoformat()}", flush=True)
+
+          while True:
+              now = datetime.now(TIMEZONE)
+              if now >= END_TIME:
+                  break
+
+              try:
+                  response = requests.get(URL, timeout=30)
+                  print(
+                      f"{now.isoformat()} | status={response.status_code} | awake",
+                      flush=True,
+                  )
+              except requests.RequestException as error:
+                  print(f"{now.isoformat()} | erro={error}", flush=True)
+
+              remaining_seconds = (END_TIME - datetime.now(TIMEZONE)).total_seconds()
+              if remaining_seconds <= 0:
+                  break
+
+              time.sleep(min(300, remaining_seconds))
+
+          print("Meia-noite de Brasilia atingida. Keep-alive encerrado.", flush=True)
+          PY
